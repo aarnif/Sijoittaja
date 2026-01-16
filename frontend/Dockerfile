@@ -6,8 +6,8 @@ WORKDIR /usr/src/app
 
 # Copy in the source code
 # Expose port WIP
-EXPOSE 4173 
-COPY package.json ./
+EXPOSE 4173
+COPY package* ./
 RUN npm ci
 COPY . .
 
