@@ -1,11 +1,9 @@
-# How to run this deployment:
-#  Run 
 apiVersion: apps/v1
-kind: Deployment #type of the thing, deployment or service. Service helps with networking
+kind: Deployment
 metadata:
   name: sijoittaja-dep
 spec:
-  replicas: 1 #amount of copies of the image
+  replicas: 1
   selector:
     matchLabels:
       app: sijoittaja
@@ -14,16 +12,11 @@ spec:
       labels:
         app: sijoittaja
     spec:
-      containers: #here is the used docker image
+      containers:
         - name: sijoittaja
           image: l0uko/sijoittaja-frontend:latest
-          imagePullPolicy: Always
           ports:
-            - containerPort: 6443
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
+            - containerPort: 4173
+          env:
+           - name: DB_URL
+             value: postgresql://ohtuprojektitesti:passwordhere@hostnamehere:5432/ohtuprojekti?targetServerType=primary&ssl=true

@@ -15,9 +15,9 @@ metadata:
   name: sijoittaja-svc
 spec:
   selector:
-    app: sijoittaja # This is the app as declared in the deployment.
+    app: sijoittaja
   ports:
-    - name: http
-      protocol: TCP
-      port: 6443 # This is a port that is available to the cluster, in this case it can be ~ anything
-      targetPort: 4173 # This is the target port
+    - protocol: TCP
+      port: 80         
+      targetPort: 4173  
+  type: ClusterIP
