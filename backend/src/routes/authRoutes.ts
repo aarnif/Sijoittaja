@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { mockAuthMiddleware } from "../middleware/mockAuth.middleware";
+import { mockAuthMiddleware } from "../middleware/mockAuth";
 
 const router = Router();
 
