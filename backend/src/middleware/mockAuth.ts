@@ -13,8 +13,8 @@ import { NextFunction, Request, Response } from "express";
 interface MockUser {
   id: string;
   name: string;
-  username: string;
   email: string;
+  uid: string;
 }
 
 export const mockAuthMiddleware = (
@@ -33,8 +33,8 @@ export const mockAuthMiddleware = (
   const mockUser: MockUser = {
     id: "12345",
     name: "Terppa Testaaja",
-    username: "terppa-testaaja",
     email: "terppa.testaaja@helsinki.fi",
+    uid: "terppa-testaaja",
   };
 
   req.login(mockUser, (err) => {
