@@ -1,12 +1,14 @@
 import { Request, Response, Router } from "express";
+import passport from "passport";
 import { mockAuthMiddleware } from "../middleware/mockAuth";
 
 const router = Router();
+const isProduction = process.env.NODE_ENV === "production";
 
 /**
  * GET /api/user
  * Returns the data of the current logged-in user
- * If note logged in, returns 401 Unauthorized
+ * If none logged in, returns 401 Unauthorized
  */
 router.get("/user", (req: Request, res: Response) => {
   if (req.isAuthenticated() && req.user) {
@@ -20,25 +22,43 @@ router.get("/user", (req: Request, res: Response) => {
  * GET /api/login
  *
  * DEVELOMPENT VERSION: Uses mock authentication middleware to log in a test user
- * PRODUCTION VERSION: Redirects to university login page (not implemented here yet)
+ * PRODUCTION VERSION: Redirects to university login page
  */
-router.get("/login", mockAuthMiddleware, (req: Request, res: Response) => {
-  res.redirect("http://localhost:5173");
-});
+if (isProduction) {
+  router.get("/login", passport.authenticate("oidc"));
+} else {
+  router.get("/login", mockAuthMiddleware, (req: Request, res: Response) => {
+    res.redirect("http://localhost:5173");
+  });
+}
 
 /**
  * GET /api/login/callback
  *
- * This route is intended for university login callback processing
+ * OIDC callback route after university login
  * In the development version, this does nothing
  * because the mock authentication logs directly in on the /api/login route
  */
-router.get("/login/callback", (req: Request, res: Response) => {
-  res.status(501).json({
-    error: "Not implemented in development mode",
-    message: "This route is only used with real OIDC authentication",
+if (isProduction) {
+  router.get(
+    "/login/callback",
+    passport.authenticate("oidc", {
+      failureRedirect: "/",
+      failureMessage: true,
+    }),
+    (req: Request, res: Response) => {
+      const frontendUrl = process.env.FRONTEND_URL || "/";
+      res.redirect(frontendUrl);
+    },
+  );
+} else {
+  router.get("/login/callback", (req: Request, res: Response) => {
+    res.status(501).json({
+      error: "Not implemented in development mode",
+      message: "This route is only used with real OIDC authentication",
+    });
   });
-});
+}
 
 /**
  * POST /api/logout
