@@ -1,14 +1,10 @@
 /**
- * Passport OIDC Configuration
- *
- * IN DEVELOMPENT: Mock authentication is used instead
- * IN PRODUCTION: Configures Passport to use OpenID Connect for authentication
+ * IN PRODUCTION: Configures Passport to use OpenID Connect for authenticationm, not used in development mode
  */
 
 import { Issuer, Strategy as OpenIDStrategy } from "openid-client";
 import passport from "passport";
-
-const isProduction = process.env.NODE_ENV === "production";
+import { config, isProduction } from "./environmentConfig";
 
 interface UserInfo {
   sub: string;
@@ -51,12 +47,9 @@ export const configurePassport = async () => {
 
   console.log("Configuring Passport with OIDC...");
 
-  const clientId = process.env.OIDC_CLIENT_ID;
-  const clientSecret = process.env.OIDC_CLIENT_SECRET;
-  const redirectUri = process.env.OIDC_REDIRECT_URI;
-  const issuerUrl = process.env.OIDC_ISSUER;
+  const { clientId, clientSecret, redirectUri, issuer } = config.oidc;
 
-  if (!clientId || !clientSecret || !redirectUri || !issuerUrl) {
+  if (!clientId || !clientSecret || !redirectUri || !issuer) {
     throw new Error(
       "Missing required OIDC environment variables: " +
         "OIDC_CLIENT_ID, OIDC_CLIENT_SECRET, OIDC_REDIRECT_URI, OIDC_ISSUER",
@@ -64,10 +57,10 @@ export const configurePassport = async () => {
   }
 
   try {
-    const issuer = await Issuer.discover(issuerUrl);
-    console.log("Discovered issuer:", issuer.metadata.issuer);
+    const oidcIssuer = await Issuer.discover(issuer);
+    console.log("Discovered issuer:", oidcIssuer.metadata.issuer);
 
-    const client = new issuer.Client({
+    const client = new oidcIssuer.Client({
       client_id: clientId,
       client_secret: clientSecret,
       redirect_uris: [redirectUri],

@@ -1,9 +1,9 @@
-import { Request, Response, Router } from "express";
+import express, { Request, Response, Router } from "express";
 import passport from "passport";
+import { config, isProduction } from "../config/environmentConfig";
 import { mockAuthMiddleware } from "../middleware/mockAuth";
 
 const router = Router();
-const isProduction = process.env.NODE_ENV === "production";
 
 /**
  * GET /api/user
@@ -45,10 +45,9 @@ if (isProduction) {
     passport.authenticate("oidc", {
       failureRedirect: "/",
       failureMessage: true,
-    }),
+    }) as express.RequestHandler,
     (req: Request, res: Response) => {
-      const frontendUrl = process.env.FRONTEND_URL || "/";
-      res.redirect(frontendUrl);
+      res.redirect(config.frontendUrl || "/");
     },
   );
 } else {
